@@ -1,2 +1,2 @@
 # WALL-ED-
-WALL-E Arduino
+WALL-EDuino
