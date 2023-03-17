@@ -12,18 +12,18 @@ static int8_t Send_buf[8] = {0} ;//The MP3 player undestands orders in a 8 int s
                                  //0X7E FF 06 command 00 00 00 EF;(if command =01 next song order)  
 
 
-int ENB=10;
-int IN3=4;
-int IN4=7;
-int IN1=9;
-int IN2=8;
-int ENA=11;
+int ENB=10; //sortie en PWM permettant de contrôler la vitesse de rotation des roues
+int IN3=4;  //sortie pour contrôler le moteur des roues, si sa tension est supérieure à IN4 les roues avancent
+int IN4=7;  //sortie pour contrôler le moteur des roues, si sa tension est supérieure à IN3 les roues font tourner le robot dans le sens anti-horaire
+int IN1=9;  //sortie pour contrôler le moteur de danse, en LOW pour faire danser
+int IN2=8;  //sortie pour contrôler le moteur de danse, en HIGH pour faire danser
+int ENA=11; //sortie en PWM permettant de contrôler la vitesse de rotation du moteur pour la danse
 char commande;
-int puissance_roue;
-int puissance_danse;
-boolean boolDanse=false;
-boolean boolAvancer=false;
-boolean boolTourner=false;
+int puissance_roue; //variable permettant de contrôler la vitesse de rotation des roues
+int puissance_danse; //variable permettant de contrôler la vitesse de danse
+boolean boolDanse=false; //quand =true , la commande danse(puissance_danse) est envoyé à chaque boucle
+boolean boolAvancer=false; //quand =true , la commande avancer(puissance_roue) est envoyé à chaque boucle
+boolean boolTourner=false; //quand =true , la commande tourner(puissance_roue) est envoyé à chaque boucle
 #define NEXT_SONG 0X01  
 #define PREV_SONG 0X02  
 #define CMD_PLAY_W_INDEX 0X03 //DATA IS REQUIRED (number of song) 
@@ -155,9 +155,8 @@ void setup() {
   digitalWrite(IN4,LOW);
   delay(500);
   delay(200);
-//  Serial.print("Debut setup");
   lcd.init();
-  affiche();
+  affiche(); //affiche "Salut c'est Wall-ED" sur l'écran 
   puissance_roue=200;
   puissance_danse=200;
   mySerial.begin(9600);//Start our Serial coms for our serial monitor! 
@@ -171,17 +170,17 @@ void loop(){
     //Serial.println("Bonjour");
     char commande = char(Serial.read());
     //Serial.print(commande);
-    if (commande=='A'){boolAvancer=true;}
+    if (commande=='A'){boolAvancer=true;} 
     if (commande=='D'){boolDanse=true;}
     if (commande=='a'){boolAvancer=false;boolTourner=false; arret();}
     if (commande=='d'){boolDanse=false; stopDanser();}
     if (commande=='T'){boolTourner=true;}
-    if (commande=='G'){ startChore();}
-    if (commande=='K'){puissance_roue=Serial.parseInt();}
-    if (commande=='L'){puissance_danse=Serial.parseInt();}
-    if (commande=='1'){sendCommand(STOP_PLAY,0X0002);sendCommand(SINGLE_PLAY, 0X0001);}
-    if (commande=='2'){sendCommand(STOP_PLAY,0X0002);sendCommand(SINGLE_PLAY, 0X0002);}
-    if (commande=='3'){sendCommand(STOP_PLAY,0X0002);sendCommand(SINGLE_PLAY, 0X0003);}
+    if (commande=='G'){ startChore();} //ne fonctionne pas
+    if (commande=='K'){puissance_roue=Serial.parseInt();} //lis l'entier qui suit le caractère 'K'
+    if (commande=='L'){puissance_danse=Serial.parseInt();} //lis l'entier qui suit le caractère 'L'
+    if (commande=='1'){sendCommand(STOP_PLAY,0X0002);sendCommand(SINGLE_PLAY, 0X0001);} //ne fonctionne pas
+    if (commande=='2'){sendCommand(STOP_PLAY,0X0002);sendCommand(SINGLE_PLAY, 0X0002);} //ne fonctionne pas
+    if (commande=='3'){sendCommand(STOP_PLAY,0X0002);sendCommand(SINGLE_PLAY, 0X0003);} //ne fonctionne pas
     if (commande=='p'){sendCommand(CMD_PAUSE,0X0001);}
     if(commande=='c'){sendCommand(CMD_PLAY,0X0001);}
     if (boolTourner){tourner(puissance_roue);}
